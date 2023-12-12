@@ -63,5 +63,21 @@ clean-all: clean
 run : sensor_gateway sensor_node
 	@echo "Add your own implementation here..."
 
+test_conn: main.c connmgr.c connmgr.h sbuffer.h sbuffer.c lib/tcpsock.c
+	gcc -Wall -std=c11 -Werror main.c connmgr.c connmgr.h lib/tcpsock.c sbuffer.h sbuffer.c -o test.out
+	./test.out 5678 5
+
+run_test_server: test.out
+	./test.out 5678 5
+
+run_client: sensor_node
+	./sensor_node 1 2 127.0.0.1 5678
+
+run_client2: sensor_node
+	./sensor_node 2 1 127.0.0.1 5678
+
+runclient3: sensor_node
+	./sensor_node 3 6 127.0.0.1 5678
+
 zip:
 	zip lab_final.zip main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.c sbuffer.h sensor_db.c sensor_db.h config.h lib/dplist.c lib/dplist.h lib/tcpsock.c lib/tcpsock.h

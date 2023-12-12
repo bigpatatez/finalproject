@@ -25,6 +25,7 @@ struct sbuffer {
 
 pthread_cond_t buffer_filled;
 pthread_mutex_t buff;
+pthread_mutex_t insert;
 int eof = 0 ;
 
 int sbuffer_init(sbuffer_t **buffer) {
@@ -34,6 +35,7 @@ int sbuffer_init(sbuffer_t **buffer) {
     (*buffer)->tail = NULL;
     pthread_cond_init(&buffer_filled,NULL);
     pthread_mutex_init(&buff,NULL);
+    pthread_mutex_init(&insert,NULL);
     return SBUFFER_SUCCESS;
 }
 
@@ -93,6 +95,7 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     if (buffer == NULL) return SBUFFER_FAILURE;
     dummy = malloc(sizeof(sbuffer_node_t));
     if (dummy == NULL) return SBUFFER_FAILURE;
+    pthread_mutex_lock(&insert);
     dummy->data = *data;
     dummy->next = NULL;
     if (buffer->tail == NULL) // buffer empty (buffer->head should also be NULL
@@ -106,5 +109,8 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     }
     printf("buffer is filled with something: signaling remove\n");
     pthread_cond_broadcast(&buffer_filled);
+    pthread_mutex_unlock(&insert);
     return SBUFFER_SUCCESS;
 }
+
+
