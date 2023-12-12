@@ -9,7 +9,7 @@
 #include "sbuffer.h"
 
 
-int conmgr_init(int argc, char *argv[], sbuffer_t* buffer) ;
+int conmgr_init(int max_conn, int port,sbuffer_t* buff) ;
 void * conmgr_routine(void * param);
 
 
