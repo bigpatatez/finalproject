@@ -14,17 +14,6 @@ typedef struct
     sbuffer_t * buff;
 }connection;
 
-void* connection_routine(void* args)
-{
-    //smething happens around here that makes evrything crash :/
-    printf("routine\n");
-    connection * a = (connection *) args;
-    int port = a->port;
-    int max_conn = a->max_conn;
-    conmgr_init(max_conn,port,buffer);
-    return NULL;
-}
-
 int main(int argc, char *argv[])
 {
 
@@ -43,9 +32,7 @@ int main(int argc, char *argv[])
     //pthread_t datamgr;
     //pthread_t storagemgr;
 
-    conmgr_init(MAX_CONN,c->port,buffer);
-
-    pthread_create(&connmgr,NULL,&connection_routine,&c);
+    pthread_create(&connmgr,NULL,&conmgr_init,&c);
     printf("connection manager\n");
 
     pthread_join(connmgr,NULL);

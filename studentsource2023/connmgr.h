@@ -8,8 +8,7 @@
 #include "config.h"
 #include "sbuffer.h"
 
-
-int conmgr_init(int max_conn, int port,sbuffer_t* buff) ;
+void* conmgr_init(void* args) ;
 void * conmgr_routine(void * param);
 
 
