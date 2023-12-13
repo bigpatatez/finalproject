@@ -1,3 +1,0 @@
-connection manager
-routine
-Test server is started

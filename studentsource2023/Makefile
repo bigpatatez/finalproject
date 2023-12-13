@@ -74,10 +74,10 @@ run_client: sensor_node
 	./sensor_node 1 2 127.0.0.1 5678
 
 run_client2: sensor_node
-	./sensor_node 2 6 127.0.0.1 5678
+	./sensor_node 2 7 127.0.0.1 5678
 
 runclient3: sensor_node
-	./sensor_node 3 7 127.0.0.1 5678
+	./sensor_node 3 5 127.0.0.1 5678
 
 zip:
 	zip lab_final.zip main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.c sbuffer.h sensor_db.c sensor_db.h config.h lib/dplist.c lib/dplist.h lib/tcpsock.c lib/tcpsock.h

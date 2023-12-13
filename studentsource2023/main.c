@@ -4,7 +4,6 @@
 #include "connmgr.h"
 #include "pthread.h"
 #include "lib/tcpsock.h"
-
 sbuffer_t * buffer;
 
 typedef struct
@@ -16,7 +15,6 @@ typedef struct
 
 int main(int argc, char *argv[])
 {
-
     if(argc < 3) {
         printf("Please provide the right arguments: first the port, then the max nb of clients");
         return -1;
@@ -32,10 +30,16 @@ int main(int argc, char *argv[])
     //pthread_t datamgr;
     //pthread_t storagemgr;
 
-    pthread_create(&connmgr,NULL,&conmgr_init,&c);
+    pthread_create(&connmgr,NULL,&conmgr_init,c);
     printf("connection manager\n");
 
-    pthread_join(connmgr,NULL);
+    int result = pthread_join(connmgr,NULL);
+    if(result !=0)
+    {
+        printf("thread not joined correctly");
+    }
     sbuffer_free(&buffer);
     free(c);
+    c = NULL;
+    return 0;
 }
