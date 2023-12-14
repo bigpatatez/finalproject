@@ -114,7 +114,6 @@ void * conmgr_init(void* arguments){
     printf("%d\n",PORT);
     MAX_CONN = m->max_conn;
     printf("%d\n",MAX_CONN);
-
     b = m->b;
 
     pthread_t threadClient[MAX_CONN];
@@ -133,25 +132,29 @@ void * conmgr_init(void* arguments){
         printf("client conn counter: %d\n",client_conn_counter);
         printf("server conn counter: %d\n",server_conn_counter);
         pthread_mutex_unlock(&counter);
-        pthread_create(&threadClient[server_conn_counter],NULL,&conmgr_routine,(void*)client);
+        pthread_create(&threadClient[server_conn_counter-1],NULL,&conmgr_routine,(void*)client);
 
     } while (server_conn_counter < MAX_CONN);
 
 
     //while(client_conn_counter != 0)
     {
-        //printf("waiting");
+        printf("waiting");
+        fflush(stdout);
         pthread_cond_wait(&everyoneHere,&counter);
     }
     printf("no more connections left\n");
     fflush(stdout);
 
-    for (int i = 1; i < MAX_CONN; ++i) {
+    for (int i = 0; i < MAX_CONN; ++i) {
+        printf("joining thread %d\n",i);
         int join_result = pthread_join(threadClient[i], NULL);
         if (join_result != 0) {
             fprintf(stderr, "Error joining thread: %d\n", join_result);
             exit(EXIT_FAILURE);
         }
+        printf("joined thread %d\n",i);
+        fflush(stdout);
     }
 
     if (tcp_close(&server) != TCP_NO_ERROR)
@@ -163,7 +166,6 @@ void * conmgr_init(void* arguments){
     printf("Test server is shutting down\n");
     pthread_mutex_destroy(&counter);
     pthread_cond_destroy(&everyoneHere);
-
 
     return 0;
 }

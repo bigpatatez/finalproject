@@ -65,7 +65,7 @@ run : sensor_gateway sensor_node
 
 test_conn: main.c connmgr.c connmgr.h sbuffer.h sbuffer.c lib/tcpsock.c
 	gcc -g -Wall -std=c11 -Werror main.c connmgr.c connmgr.h lib/tcpsock.c sbuffer.h sbuffer.c -lpthread -o test.out
-	./test.out 5678 3
+	./test.out 5678 1
 
 run_test_server: test.out
 	./test.out 5678 5
