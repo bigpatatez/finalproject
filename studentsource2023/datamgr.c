@@ -182,19 +182,23 @@ void running_average_calculator(sensor_element_t *element, double temp, time_t t
 {
     double sum = 0;
     int zero_counter = 0;
-    for(int i=1;i<RUN_AVG_LENGTH;i++)
+    for(int i=RUN_AVG_LENGTH-1;i>0 ;i--)
     {
-        if(element->values[i] == 999){zero_counter++;}
-        element->values[i-1] = element->values[i];
-        sum += element->values[i-1];
-        if(i == RUN_AVG_LENGTH-1)
+        element->values[i] = element->values[i-1];
+        if(element-> values[i] == 999)
         {
-            element->values[RUN_AVG_LENGTH-1] = temp;
-            sum += element->values[RUN_AVG_LENGTH-1];
+            zero_counter ++;
         }
+        else
+        {
+            sum += element->values[i];
+        }
+
     }
+    element->values[0] = temp;
+    sum += temp;
     element->last_modified = timestamp;
-    if(zero_counter>0){element->running_avg = 0;}
+    if(zero_counter>0){element->running_avg = sum/(RUN_AVG_LENGTH-zero_counter);}
     else{element->running_avg = sum/RUN_AVG_LENGTH;}
     checkAverage(element);
 }
