@@ -67,9 +67,9 @@ void * conmgr_routine(void * param)
         if ((result == TCP_NO_ERROR) && bytes && data.id != 0 && data.ts >= 0 && data.value >= 0) {
             sbuffer_insert(b,&data);
             printf("%d\n",setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout));
-            printf("inserted in buffer\n");
-            printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
-                   (long int) data.ts);
+            //printf("inserted in buffer\n");
+            //printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
+                   //(long int) data.ts);
         }
     } while (result == TCP_NO_ERROR  );
     // add timeout condition from tcp socket library --> you should implement it there because if you do it here it keeps reading while receiving the timeout
@@ -86,8 +86,8 @@ void * conmgr_routine(void * param)
 
     pthread_mutex_lock(&counter);
     client_conn_counter--;
-    printf("client connection counter: %d\n",client_conn_counter);
-    printf("server connection counter: %d\n",server_conn_counter);
+    //printf("client connection counter: %d\n",client_conn_counter);
+    //printf("server connection counter: %d\n",server_conn_counter);
     if(client_conn_counter==0)
     {
         pthread_cond_signal(&everyoneHere);
@@ -123,14 +123,14 @@ void * conmgr_init(void* arguments){
     printf("Test server is started\n");
     if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR)exit(EXIT_FAILURE);
     do {
-        printf("in the loop");
+        //printf("in the loop");
         if (tcp_wait_for_connection(server, &client) != TCP_NO_ERROR)exit(EXIT_FAILURE);
         printf("Incoming client connection\n");
         pthread_mutex_lock(&counter);
         client_conn_counter++;
         server_conn_counter++;
-        printf("client conn counter: %d\n",client_conn_counter);
-        printf("server conn counter: %d\n",server_conn_counter);
+        //printf("client conn counter: %d\n",client_conn_counter);
+        //printf("server conn counter: %d\n",server_conn_counter);
         pthread_mutex_unlock(&counter);
         pthread_create(&threadClient[server_conn_counter-1],NULL,&conmgr_routine,(void*)client);
 
@@ -139,21 +139,26 @@ void * conmgr_init(void* arguments){
 
     //while(client_conn_counter != 0)
     {
-        printf("waiting");
+        //printf("waiting\n");
         fflush(stdout);
         pthread_cond_wait(&everyoneHere,&counter);
     }
-    printf("no more connections left\n");
+    //printf("no more connections left\n");
     fflush(stdout);
 
+    //insert dummy data
+    sensor_data_t data ;
+    data.id = 0;
+    sbuffer_insert(b,&data);
+
     for (int i = 0; i < MAX_CONN; ++i) {
-        printf("joining thread %d\n",i);
+        //printf("joining thread %d\n",i);
         int join_result = pthread_join(threadClient[i], NULL);
         if (join_result != 0) {
             fprintf(stderr, "Error joining thread: %d\n", join_result);
             exit(EXIT_FAILURE);
         }
-        printf("joined thread %d\n",i);
+        //printf("joined thread %d\n",i);
         fflush(stdout);
     }
 

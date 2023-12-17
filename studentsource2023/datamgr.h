@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "config.h"
+#include "sbuffer.h"
 
 #ifndef RUN_AVG_LENGTH
 #define RUN_AVG_LENGTH 5
@@ -39,13 +40,15 @@ typedef struct sensor_node sensor_node_t;
                       }                                             \
                     } while(0)
 
+void* datamgr_init(void* args);
+
 /**
  *  This method holds the core functionality of your datamgr. It takes in 2 file pointers to the sensor files and parses them. 
  *  When the method finishes all data should be in the internal pointer list and all log messages should be printed to stderr.
  *  \param fp_sensor_map file pointer to the map file
  *  \param fp_sensor_data file pointer to the binary data file
  */
-void datamgr_parse_sensor_files(FILE *fp_sensor_map, FILE *fp_sensor_data);
+void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t* buffer);
 
 /**
  * This method should be called to clean up the datamgr, and to free all used memory. 

@@ -63,21 +63,24 @@ clean-all: clean
 run : sensor_gateway sensor_node
 	@echo "Add your own implementation here..."
 
-test_conn: main.c connmgr.c connmgr.h sbuffer.h sbuffer.c lib/tcpsock.c
-	gcc -g -Wall -std=c11 -Werror main.c connmgr.c connmgr.h lib/tcpsock.c sbuffer.h sbuffer.c -lpthread -o test.out
-	./test.out 5678 1
+test_conn: main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.h sbuffer.c lib/tcpsock.c lib/dplist.c
+	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -DTIMEOUT=5 main.c connmgr.c connmgr.h datamgr.c datamgr.h lib/tcpsock.c lib/dplist.c sbuffer.h sbuffer.c -lpthread -o test.out
+	./test.out 5678 2
 
 run_test_server: test.out
 	./test.out 5678 5
 
 run_client: sensor_node
-	./sensor_node 1 2 127.0.0.1 5678
+	./sensor_node 15 3 127.0.0.1 5678
 
 run_client2: sensor_node
-	./sensor_node 2 7 127.0.0.1 5678
+	./sensor_node 21 1 127.0.0.1 5678
 
 runclient3: sensor_node
-	./sensor_node 3 5 127.0.0.1 5678
+	./sensor_node 37 5 127.0.0.1 5678
 
+datamgr_test: sbuffer.c sbuffer.h datamgr.c datamgr.h datamgr_test.c lib/dplist.c
+	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -lpthread sbuffer.h sbuffer.c datamgr.c datamgr.h datamgr_test.c lib/dplist.c -o dataTest.out
+	./dataTest.out
 zip:
 	zip lab_final.zip main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.c sbuffer.h sensor_db.c sensor_db.h config.h lib/dplist.c lib/dplist.h lib/tcpsock.c lib/tcpsock.h
