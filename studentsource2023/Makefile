@@ -65,7 +65,7 @@ run : sensor_gateway sensor_node
 
 test_conn: main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.h sbuffer.c lib/tcpsock.c lib/dplist.c
 	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -DTIMEOUT=5 main.c connmgr.c connmgr.h datamgr.c datamgr.h lib/tcpsock.c lib/dplist.c sbuffer.h sbuffer.c -lpthread -o test.out
-	./test.out 5678 2
+	./test.out 5678 3
 
 run_test_server: test.out
 	./test.out 5678 5

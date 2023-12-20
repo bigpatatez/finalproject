@@ -15,6 +15,17 @@ typedef struct
     sbuffer_t * buff;
 }connection;
 
+void * storagemgr_init(void * args)
+{
+    sensor_data_t * d = malloc(sizeof(sensor_data_t));
+    sbuffer_t * b = (sbuffer_t *)args;
+    while(sbuffer_remove(b,d,0) != SBUFFER_NO_DATA)
+    {
+        printf("storagemgr removed element\n");
+    }
+    free(d);
+    return NULL;
+}
 
 int main(int argc, char *argv[])
 {
@@ -31,12 +42,13 @@ int main(int argc, char *argv[])
 
     pthread_t connmgr;
     pthread_t datamgr;
-    //pthread_t storagemgr;
+    pthread_t storagemgr;
 
     pthread_create(&connmgr,NULL,&conmgr_init,c);
     printf("connection manager\n");
     pthread_create(&datamgr,NULL,&datamgr_init,(void*)buffer);
     printf("data manager\n");
+    pthread_create(&storagemgr,NULL,&storagemgr_init,(void*)buffer);
 
     // can implement an array and check whether all threads joined correctly
     int result = pthread_join(connmgr,NULL);
@@ -49,6 +61,12 @@ int main(int argc, char *argv[])
     {
         printf("data manager thread not joined correctly\n");
     }
+    result=pthread_join(storagemgr,NULL);
+    if(result !=0)
+    {
+        printf("storage manager not joined correctly\n");
+    }
+
     sbuffer_free(&buffer);
     free(c);
     c = NULL;

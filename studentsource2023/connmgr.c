@@ -68,8 +68,8 @@ void * conmgr_routine(void * param)
             sbuffer_insert(b,&data);
             printf("%d\n",setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout));
             //printf("inserted in buffer\n");
-            //printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
-                   //(long int) data.ts);
+            printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
+                   (long int) data.ts);
         }
     } while (result == TCP_NO_ERROR  );
     // add timeout condition from tcp socket library --> you should implement it there because if you do it here it keeps reading while receiving the timeout

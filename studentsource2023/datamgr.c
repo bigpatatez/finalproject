@@ -84,6 +84,7 @@ void* datamgr_init(void* args)
     sbuffer_t * buffer = (sbuffer_t*) args;
     FILE * map = fopen("room_sensor.map","r");
     datamgr_parse_sensor_files(map,buffer);
+    fclose(map);
     datamgr_free();
     printf("datamgr exiting\n");
     return NULL;
@@ -117,8 +118,8 @@ void populate_sensor_list(dplist_t* list, FILE* fp_sensor_map)
                 el->values[i] = 999;
             }
             dpl_insert_at_index(list,el,0,false);
-            printf("room_id : %d\n",room_id);
-            printf("sensor_id: %d\n",sensor_id);
+            //printf("room_id : %d\n",room_id);
+            //printf("sensor_id: %d\n",sensor_id);
         }
     }
 }
@@ -138,7 +139,7 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
     time_t timestamp;
     sensor_data_t * sensorData = malloc(sizeof(sensor_data_t));
 
-    while(sbuffer_remove(buffer,sensorData)!= SBUFFER_NO_DATA)
+    while(sbuffer_remove(buffer,sensorData,1)!= SBUFFER_NO_DATA)
     {
         sensor_id = sensorData->id;
         temp = sensorData->value;

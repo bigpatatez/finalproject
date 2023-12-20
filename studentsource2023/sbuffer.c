@@ -12,7 +12,9 @@
  */
 typedef struct sbuffer_node {
     struct sbuffer_node *next;  /**< a pointer to the next node*/
-    sensor_data_t data;         /**< a structure containing the data */
+    sensor_data_t data;/**< a structure containing the data */
+    int datamgr;
+    int storagemgr;
 } sbuffer_node_t;
 
 /**
@@ -55,11 +57,12 @@ int sbuffer_free(sbuffer_t **buffer) {
     return SBUFFER_SUCCESS;
 }
 
-int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
-    sbuffer_node_t *dummy;
+int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int read) {
+
     if (buffer == NULL) return SBUFFER_FAILURE;
+
     pthread_mutex_lock(&buff);
-    while (buffer->head == NULL) {
+    while (buffer->head == NULL) { // if the buffer is empty
         if(eof == 1)
         {
             return SBUFFER_NO_DATA;
@@ -67,28 +70,61 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
         pthread_cond_wait(&buffer_filled,&buff);
         printf("got signal from insert\n");
     }
-    *data = buffer->head->data;
+
+    sbuffer_node_t *dummy;
     dummy = buffer->head;
-    if (buffer->head == buffer->tail) // buffer has only one node
+    *data = buffer->head->data;
+
+    if(read == 1)
     {
-        buffer->head = buffer->tail = NULL;
-        if(data->id == 0)
+        while(dummy->datamgr == 1) // if the flag is set
         {
-            free(dummy);
-            printf("end of transmission detected\n");
-            eof = 1;
-            pthread_mutex_unlock(&buff);
-            return SBUFFER_NO_DATA;
+            while(dummy->next == NULL)// if there is no next one then we must wait for something to be inserted into the buffer
+            {
+                pthread_cond_wait(&buffer_filled,&buff);
+            }
+            dummy = dummy->next;// the dummy is the next one
         }
+        *data = dummy->data;
+        dummy->datamgr = 1;
     }
-    else  // buffer has many nodes empty
+    else
     {
-        buffer->head = buffer->head->next;
+        while(dummy->storagemgr == 1) // if the flag is set
+        {
+            while(dummy->next == NULL)// if there is no next one then we must wait for something to be inserted into the buffer
+            {
+                pthread_cond_wait(&buffer_filled,&buff);
+            }
+            dummy = dummy->next;// the dummy is the next one
+        }
+        *data = dummy->data;
+        dummy->storagemgr = 1;
     }
-    free(dummy);
+    if(dummy->storagemgr == 1 && dummy->datamgr == 1)
+    {
+        if (buffer->head == buffer->tail) // buffer has only one node
+        {
+            buffer->head = buffer->tail = NULL;
+            if (data->id == 0) {
+                free(dummy);
+                printf("end of transmission detected\n");
+                eof = 1;
+                pthread_mutex_unlock(&buff);
+                return SBUFFER_NO_DATA;
+            }
+        } else  // buffer has many nodes empty
+        {
+            buffer->head = buffer->head->next;
+        }
+        free(dummy);
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_SUCCESS;
+    }
     pthread_mutex_unlock(&buff);
     return SBUFFER_SUCCESS;
 }
+
 
 int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     sbuffer_node_t *dummy;
@@ -98,6 +134,8 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     pthread_mutex_lock(&insert);
     dummy->data = *data;
     dummy->next = NULL;
+    dummy->datamgr = 0;
+    dummy->storagemgr = 0;
     if (buffer->tail == NULL) // buffer empty (buffer->head should also be NULL
     {
         buffer->head = buffer->tail = dummy;
