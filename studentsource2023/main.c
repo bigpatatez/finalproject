@@ -19,7 +19,7 @@ void * storagemgr_init(void * args)
 {
     sensor_data_t * d = malloc(sizeof(sensor_data_t));
     sbuffer_t * b = (sbuffer_t *)args;
-    while(sbuffer_remove(b,d,0) != SBUFFER_NO_DATA)
+    while(sbuffer_remove(b,d,1) != SBUFFER_NO_DATA)
     {
         printf("storage got: %d, %f, %ld",d->id,d->value,d->ts);
     }
@@ -70,6 +70,12 @@ int main(int argc, char *argv[])
     sbuffer_free(&buffer);
     free(c);
     c = NULL;
+
+    /**TODO:  need to test the storage manager and the datamanager with multiple clients--> test edge cases as much as possible
+     *             implement storage manager and dont forget to flush
+     *             implement the logger -> use the functions inside main?? think ab it
+     */
+
 
     return 0;
 }

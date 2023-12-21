@@ -30,7 +30,7 @@ pthread_cond_t buffer_filled;
 pthread_mutex_t buff;
 pthread_mutex_t insert;
 int eof = 0 ;
-int readers = 0;
+
 int sbuffer_init(sbuffer_t **buffer) {
     *buffer = malloc(sizeof(sbuffer_t));
     if (*buffer == NULL) return SBUFFER_FAILURE;
@@ -61,28 +61,43 @@ int sbuffer_free(sbuffer_t **buffer) {
     return SBUFFER_SUCCESS;
 }
 
+void decrement_indexes(sbuffer_t* buffer)
+{
+    buffer->index[0] --;
+    buffer->index[1] --;
+}
+
 int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
 
     if (buffer == NULL) return SBUFFER_FAILURE;
 
     pthread_mutex_lock(&buff);
     // get the element based on the index
-    while (buffer->head == NULL) { // if the buffer is empty
-        /*if(eof == 1)
+    sbuffer_node_t * dummy = get_node_at_index(buffer,buffer->index[id]);
+    /*while (buffer->head == NULL) { // if the buffer is empty
+        *//*if(eof == 1)
         {
             pthread_mutex_unlock(&buff);
             return SBUFFER_NO_DATA;
-        }*/
+        }*//*
         pthread_cond_wait(&buffer_filled,&buff);
         printf("got signal from insert\n");
+    }*/
+    while(dummy == NULL)
+    {
+        pthread_cond_wait(&buffer_filled,&buff);
+        printf("got signal from insert\n");
+        dummy = get_node_at_index(buffer,buffer->index[id]);
     }
 
-    sbuffer_node_t *dummy;
-    dummy = buffer->head;
-    *data = buffer->head->data;
-    readers++;
+    //sbuffer_node_t *dummy;
+    //dummy = buffer->head;
+    //*data = buffer->head->data;
+    *data = dummy->data;
+    buffer->index[id]++;
+    dummy->readers ++;
 
-    if(readers == 2)
+    if(dummy->readers == 2) //I think the removed node will always be from the head but i am not sure so :/
     {
         if (buffer->head == buffer->tail) // buffer has only one node
         {
@@ -98,19 +113,19 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
         {
             buffer->head = buffer->head->next;
         }
+        decrement_indexes(buffer);
         free(dummy);
-        pthread_cond_signal(&remove_cond);
         pthread_mutex_unlock(&buff);
         return SBUFFER_SUCCESS;
     }
-    else
+    if(data->id == 0)
     {
-        pthread_cond_wait(&remove_cond,&buff);
+        printf("end of transmission detected by the first reader\n");
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
     }
-
     pthread_mutex_unlock(&buff);
     return SBUFFER_SUCCESS;
-
 }
 
 
@@ -137,14 +152,20 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     pthread_mutex_unlock(&insert);
     return SBUFFER_SUCCESS;
 }
-sbuffer_node_t * get_node_at_index(sbuffer_t* buffer, int id)
+sbuffer_node_t * get_node_at_index(sbuffer_t* buffer, int index)
 {
     if(buffer ==NULL){return NULL;}
     if(buffer->head == NULL){return NULL;}
     sbuffer_node_t * dummy = buffer->head;
-    int index = buffer->index[id];
-    for(int i = 0; )
-    return NULL;
+    if (index == 0)
+    {
+        return dummy;
+    }
+    for(int i = 1; i <= index; i++)
+    {
+        dummy = dummy->next;
+    }
+    return dummy;
 }
 
 

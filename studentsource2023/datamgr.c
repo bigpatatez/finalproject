@@ -139,7 +139,7 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
     time_t timestamp;
     sensor_data_t * sensorData = malloc(sizeof(sensor_data_t));
 
-    while(sbuffer_remove(buffer,sensorData,1)!= SBUFFER_NO_DATA)
+    while(sbuffer_remove(buffer,sensorData,0)!= SBUFFER_NO_DATA)
     {
         sensor_id = sensorData->id;
         temp = sensorData->value;
