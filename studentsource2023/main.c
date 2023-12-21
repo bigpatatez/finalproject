@@ -21,7 +21,7 @@ void * storagemgr_init(void * args)
     sbuffer_t * b = (sbuffer_t *)args;
     while(sbuffer_remove(b,d,0) != SBUFFER_NO_DATA)
     {
-        printf("storagemgr removed element\n");
+        printf("storage got: %d, %f, %ld",d->id,d->value,d->ts);
     }
     free(d);
     return NULL;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     {
         printf("storage manager not joined correctly\n");
     }
-
+    printf("connection manager and data manager joined\n");
     sbuffer_free(&buffer);
     free(c);
     c = NULL;
