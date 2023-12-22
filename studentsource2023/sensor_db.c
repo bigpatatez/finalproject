@@ -1,71 +1,113 @@
+#include "logger.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include "config.h"
-#include "sensor_db.h"
 #include <stdbool.h>
 #include <unistd.h>
-#include "logger.h"
-#include <string.h>
-#include <sys/wait.h>
+#include <wait.h>
 
-char send[30];
-int *fd;
-
-void set_fd(int pipe[2])
-{
-    fd = pipe;
-}
-void sendMessage()
- {
-     printf("sending message");
-     fflush(stdout);
-     //strncpy(send,message,sizeof(send));
-     write(fd[1], send, sizeof(send));
-     printf("sent message");
-     fflush(stdout);
- }
-
+int pid ;
 FILE * open_db(char * filename, bool append)
 {
+    // first create a log process
+    int s = create_log_process();
+    if(s==0) // pipe success and the log file is open
+    {
+        pid = fork();
+        if(pid<0)
+        {
+            printf("Forking failed\n");
+            return NULL;
+        }
+        else if(pid>0)
+        {
+            FILE *file = fopen(filename, "r");
+            if (file == NULL) {
+                printf("the file does not exist, a new file with this name will be created\n");
+                file = fopen(filename, "w");
+                if (file != NULL)
+                {
+                    write_to_log_process("Data file created and opened");
+                    return file;
+                }
 
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("the file does not exist, a new file with this name will be created");
-        strncpy(send, "Data file created and opened", sizeof(send));
-        sendMessage();
-        return fopen(filename, "w");;
-    }
-    else {
-        strncpy(send, "Data file opened", sizeof(send));
-        sendMessage();
-        if (append == true) {
-            fclose(file);
-            return fopen(filename, "a");
-        } else {
-            fclose(file);
-            return fopen(filename, "w");
+            }
+            else {
+
+                if (append == true) {
+                    fclose(file);
+                    file = fopen(filename, "a");
+                    //wait(NULL);
+                    if (file != NULL)
+                    {
+                        write_to_log_process("Data file opened");
+                        return file;
+                    }
+
+                } else {
+                    fclose(file);
+                    file = fopen(filename, "w");
+                    if (file != NULL)
+                    {
+                        write_to_log_process("Data file opened");
+                        return file;
+                    }
+                }
+            }
+        }
+        else
+        {
+            write_to_log_process("child");
         }
     }
+    return NULL;
 }
 int insert_sensor(FILE * f, sensor_id_t id, sensor_value_t value, sensor_ts_t ts)
 {
-    int success = fprintf(f,"%d, %f, %ld\n",id,value,ts);
-    if(success <0)
+    if(pid >0)
     {
-        strncpy(send,"Data insertion failed", sizeof(send));
-        sendMessage();
+        int success = fprintf(f,"%d, %f, %ld\n",id,value,ts);
+        if(success <0)
+        {
+            write_to_log_process("Data insertion failed");
+        }
+        else
+        {
+            write_to_log_process("Data inserted");
+        }
+        return  success;
     }
     else
     {
-        strncpy(send,"Data inserted", sizeof(send));
-        sendMessage();
+        write_to_log_process("child");
     }
-    return  success;
+    return 0;
 }
-
 int close_db(FILE * f)
 {
-    strncpy(send,"Data file is closed", sizeof(send));
-    sendMessage();
-    return fclose(f);
+    if(pid >0)
+    {
+        int a = fclose(f);
+        if(a == 0)
+        {
+            write_to_log_process("Data file is closed");
+            wait(NULL);
+            return 0;
+        }
+        else
+        {
+            printf("%d",a);
+            fflush(stdout);
+            write_to_log_process("Data file couldn't be closed correctly");
+            wait(NULL);
+            return -1;
+        }
+
+    }
+    else
+    {
+        write_to_log_process("child");
+        end_log_process();
+    }
+
+    return 0;
 }

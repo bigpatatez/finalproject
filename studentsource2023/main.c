@@ -19,10 +19,22 @@ void * storagemgr_init(void * args)
 {
     sensor_data_t * d = malloc(sizeof(sensor_data_t));
     sbuffer_t * b = (sbuffer_t *)args;
+    FILE * file = fopen("data.csv","w");
     while(sbuffer_remove(b,d,1) != SBUFFER_NO_DATA)
     {
         printf("storage got: %d, %f, %ld",d->id,d->value,d->ts);
+        int success = fprintf(file,"%d, %f, %ld\n",d->id,d->value,d->ts);
+        fflush(file);
+        if(success <0)
+        {
+            printf("Data insertion failed");
+        }
+        else
+        {
+            printf("Data inserted");
+        }
     }
+    fclose(file);
     free(d);
     return NULL;
 }
