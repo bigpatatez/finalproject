@@ -4,7 +4,7 @@
 
 #ifndef _SBUFFER_H_
 #define _SBUFFER_H_
-
+#include <unistd.h>
 #include "config.h"
 
 #define SBUFFER_FAILURE -1

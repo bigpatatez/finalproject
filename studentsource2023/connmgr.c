@@ -65,11 +65,12 @@ void * conmgr_routine(void * param)
         result = tcp_receive(client, (void *) &data.ts, &bytes);
 
         if ((result == TCP_NO_ERROR) && bytes && data.id != 0 && data.ts >= 0 && data.value >= 0) {
-            sbuffer_insert(b,&data);
-            printf("%d\n",setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout));
-            //printf("inserted in buffer\n");
             printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
                    (long int) data.ts);
+            sbuffer_insert(b,&data);
+            setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
+            //printf("inserted in buffer\n");
+
         }
     } while (result == TCP_NO_ERROR  );
     // add timeout condition from tcp socket library --> you should implement it there because if you do it here it keeps reading while receiving the timeout
@@ -138,19 +139,19 @@ void * conmgr_init(void* arguments){
 
 
     //while(client_conn_counter != 0)
-    {
-        //printf("waiting\n");
-        fflush(stdout);
-        pthread_cond_wait(&everyoneHere,&counter);
-    }
+    pthread_mutex_lock(&counter);
+    //printf("waiting\n");
+    //fflush(stdout);
+    pthread_cond_wait(&everyoneHere,&counter);
+
     //printf("no more connections left\n");
-    fflush(stdout);
+    //fflush(stdout);
 
     //insert dummy data
     sensor_data_t data ;
     data.id = 0;
     sbuffer_insert(b,&data);
-
+    pthread_mutex_unlock(&counter);
     for (int i = 0; i < MAX_CONN; ++i) {
         //printf("joining thread %d\n",i);
         int join_result = pthread_join(threadClient[i], NULL);

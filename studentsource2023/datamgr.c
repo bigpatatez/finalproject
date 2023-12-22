@@ -175,17 +175,18 @@ void print_sensor_element_info(sensor_element_t *element)
 {
     printf("sensor_id: %d\t",element->sensor_id);
     printf("room_id:%d \t",element->room_id);
+    printf("new value: %f\t",element->values[0]);
     printf("running average:%f \t",element->running_avg);
     printf("last modified: %s",asctime(gmtime(&(element->last_modified))));
-    printf("\t");
+    printf("\n");
 
-    printf("last %d temperature values:\n",RUN_AVG_LENGTH);
+    /**printf("last %d temperature values:\n",RUN_AVG_LENGTH);
     for(int i = 0 ; i<RUN_AVG_LENGTH;i++)
     {
         printf("value %d: %f\t",i,element->values[i]);
     }
     printf("\n");
-    fflush(stdout);
+    fflush(stdout);*/
 }
 
 /**
