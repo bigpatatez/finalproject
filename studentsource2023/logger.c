@@ -14,6 +14,7 @@ int write_to_log_process(char *msg)
 {
     if(strcmp(msg,"child") == 0)
     {
+        // this needs to change
         close(fd[1]);
         read(fd[0],received,sizeof(received));
         char * timestamp;

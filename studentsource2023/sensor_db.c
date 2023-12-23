@@ -4,11 +4,38 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <wait.h>
+#include "sbuffer.h"
 
 int pid ;
+
+void * storagemgr_init(void * args)
+{
+    sensor_data_t * d = malloc(sizeof(sensor_data_t));
+    sbuffer_t * b = (sbuffer_t *)args;
+    FILE * file = fopen("data.csv","w");
+    while(sbuffer_remove(b,d,1) != SBUFFER_NO_DATA)
+    {
+        printf("storage got: %d, %f, %ld",d->id,d->value,d->ts);
+        int success = fprintf(file,"%d, %f, %ld\n",d->id,d->value,d->ts);
+        fflush(file);
+        if(success <0)
+        {
+            printf("Data insertion failed");
+        }
+        else
+        {
+            printf("Data inserted");
+        }
+    }
+    fclose(file);
+    free(d);
+    return NULL;
+}
+
 FILE * open_db(char * filename, bool append)
 {
-    // first create a log process
+
+    /*// first create a log process
     int s = create_log_process();
     if(s==0) // pipe success and the log file is open
     {
@@ -58,7 +85,7 @@ FILE * open_db(char * filename, bool append)
         {
             write_to_log_process("child");
         }
-    }
+    }*/
     return NULL;
 }
 int insert_sensor(FILE * f, sensor_id_t id, sensor_value_t value, sensor_ts_t ts)

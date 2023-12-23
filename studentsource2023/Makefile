@@ -71,13 +71,13 @@ run_test_server: test.out
 	./test.out 5678 1
 
 run_client: sensor_node
-	./sensor_node 15 3 127.0.0.1 5678
+	./sensor_node 15 1 127.0.0.1 5678
 
 run_client2: sensor_node
 	./sensor_node 21 1 127.0.0.1 5678
 
 runclient3: sensor_node
-	./sensor_node 37 5 127.0.0.1 5678
+	./sensor_node 37 1 127.0.0.1 5678
 
 datamgr_test: sbuffer.c sbuffer.h datamgr.c datamgr.h datamgr_test.c lib/dplist.c
 	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -lpthread sbuffer.h sbuffer.c datamgr.c datamgr.h datamgr_test.c lib/dplist.c -o dataTest.out
