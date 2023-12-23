@@ -8,10 +8,8 @@
 #include "config.h"
 #include "lib/tcpsock.h"
 #include <pthread.h>
-#include <unistd.h>
 #include "connmgr.h"
 #include "sbuffer.h"
-#include <signal.h>
 #include <bits/types/struct_timeval.h>
 #include <sys/socket.h>
 
@@ -25,11 +23,6 @@ typedef struct
     int max_conn;
     sbuffer_t* b;
 }mainArgs;
-
-//typedef struct {
-
-
-//}args ;
 
 int server_conn_counter = 0 ;
 pthread_mutex_t counter;
@@ -49,7 +42,7 @@ void * conmgr_routine(void * param)
 
     sensor_data_t data;
     int bytes, result;
-
+    int i = 0;
     struct timeval timeout;
     timeout.tv_sec = TIMEOUT;
     timeout.tv_usec = 0;
@@ -64,31 +57,42 @@ void * conmgr_routine(void * param)
         bytes = sizeof(data.ts);
         result = tcp_receive(client, (void *) &data.ts, &bytes);
 
+        if(i == 0)
+        {
+            char string[1024];
+            snprintf(string,sizeof(string),"Sensor node %d has opened a new connection",data.id);
+            write_to_log_process(string);
+        }
         if ((result == TCP_NO_ERROR) && bytes && data.id != 0 && data.ts >= 0 && data.value >= 0) {
             printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
                    (long int) data.ts);
             sbuffer_insert(b,&data);
             setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
-            //printf("inserted in buffer\n");
 
         }
+        i = 1;
     } while (result == TCP_NO_ERROR  );
-    // add timeout condition from tcp socket library --> you should implement it there because if you do it here it keeps reading while receiving the timeout
 
     if (result == TCP_CONNECTION_CLOSED)
+    {
         printf("Peer has closed connection\n");
+        char string[1024];
+        snprintf(string,sizeof(string),"Sensor node %d has closed the connection",data.id);
+        write_to_log_process(string);
+    }
     else
     {
         printf("Error occured on connection to peer\n");
         printf("Error code : %d\n",result);
+        char string[1024];
+        snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
+        write_to_log_process(string);
     }
 
     tcp_close(&client);
 
     pthread_mutex_lock(&counter);
     client_conn_counter--;
-    //printf("client connection counter: %d\n",client_conn_counter);
-    //printf("server connection counter: %d\n",server_conn_counter);
     if(client_conn_counter==0)
     {
         pthread_cond_signal(&everyoneHere);
@@ -124,48 +128,37 @@ void * conmgr_init(void* arguments){
     printf("Test server is started\n");
     if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR)exit(EXIT_FAILURE);
     do {
-        //printf("in the loop");
         if (tcp_wait_for_connection(server, &client) != TCP_NO_ERROR)exit(EXIT_FAILURE);
         printf("Incoming client connection\n");
         pthread_mutex_lock(&counter);
         client_conn_counter++;
         server_conn_counter++;
-        //printf("client conn counter: %d\n",client_conn_counter);
-        //printf("server conn counter: %d\n",server_conn_counter);
         pthread_mutex_unlock(&counter);
         pthread_create(&threadClient[server_conn_counter-1],NULL,&conmgr_routine,(void*)client);
 
     } while (server_conn_counter < MAX_CONN);
 
 
-    //while(client_conn_counter != 0)
     pthread_mutex_lock(&counter);
-    //printf("waiting\n");
-    //fflush(stdout);
     pthread_cond_wait(&everyoneHere,&counter);
-
-    //printf("no more connections left\n");
-    //fflush(stdout);
-
     //insert dummy data
     sensor_data_t data ;
     data.id = 0;
     sbuffer_insert(b,&data);
     pthread_mutex_unlock(&counter);
+
     for (int i = 0; i < MAX_CONN; ++i) {
-        //printf("joining thread %d\n",i);
         int join_result = pthread_join(threadClient[i], NULL);
         if (join_result != 0) {
             fprintf(stderr, "Error joining thread: %d\n", join_result);
             exit(EXIT_FAILURE);
         }
-        //printf("joined thread %d\n",i);
         fflush(stdout);
     }
 
     if (tcp_close(&server) != TCP_NO_ERROR)
     {
-        printf("error while closing tcp conn\n");
+        printf("error while closing tcp connection\n");
         exit(EXIT_FAILURE);
     }
 

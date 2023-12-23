@@ -6,7 +6,6 @@
 #include "connmgr.h"
 #include "pthread.h"
 #include "datamgr.h"
-#include "lib/tcpsock.h"
 #include "sensor_db.h"
 
 sbuffer_t * buffer;
@@ -23,65 +22,38 @@ int seq = 0;
 pthread_mutex_t logging;
 int write_to_log_process(char *msg)
 {
-    /*if(strcmp(msg,"child") == 0)
-    {
-        // this needs to change
-        close(fd[1]);
-        read(fd[0],received,sizeof(received));
-        char * timestamp;
-
-        time_t ltime;
-        ltime = time(NULL);
-        timestamp = asctime(localtime(&ltime));
-        timestamp[strlen(timestamp)-1] = '\0';
-
-        char buffer[100];
-        snprintf(buffer,sizeof(buffer),"%d - %s - %s\n",seq,timestamp,received);
-        printf("\nwriting to file: %s",buffer);
-        fflush(stdout);
-        fprintf(f, "%s",buffer);
-        printf("wrote to file\n");
-        fflush(stdout);
-        seq++;
-        return 2;
-    }*/
-
     char send[1024];
     char * timestamp;
-    pthread_mutex_lock(&logging);
+
     time_t ltime;
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp)-1] = '\0';
+
+    pthread_mutex_lock(&logging);
     snprintf(send,sizeof(send),"%d - %s - %s\n",seq,timestamp,msg);
-    //strncpy(send,msg,sizeof(send));
     printf("sending message\n");
     write(fd[1],send,sizeof(send));
     printf("sent message\n");
     seq++;
     pthread_mutex_unlock(&logging);
-    /*if(strcmp(msg,"Data file is closed") == 0)
-    {
-        wait(NULL);
-        close(fd[1]);
-    }*/
     return 1;
 
 }
-
-void logger()
+int logger()
 {
-    char received;
+    char received[1024];
     FILE* f = fopen("gateway.log","w");
-    // receive messages from the other threads
     close(fd[1]);
-    // this part needs to change
-    while(read(fd[0],&received,1))
+    while(read(fd[0],received,1024)>0)
     {
-        fwrite(&buffer,1,1,f);
+        fprintf(f,"%s",received);
         fflush(f);
     }
+    printf("logger closing the pipe\n");
     close(fd[0]);
     fclose(f);
+    return 0;
 }
 
 
@@ -92,7 +64,6 @@ int main(int argc, char *argv[])
         printf("Please provide the right arguments: first the port, then the max nb of clients");
         return -1;
     }
-
     pthread_mutex_init(&logging,NULL);
     if(pipe(fd) == -1)
     {
@@ -108,6 +79,7 @@ int main(int argc, char *argv[])
     if(pid == 0)
     {
         logger();
+
     }
     else{
 
@@ -146,20 +118,11 @@ int main(int argc, char *argv[])
             printf("storage manager not joined correctly\n");
         }
         printf("connection manager and data manager joined\n");
-
-        wait(NULL);
         close(fd[1]);
+        wait(NULL);
         sbuffer_free(&buffer);
         free(c);
-        c = NULL;
+        printf("sensor gateway shutting off\n");
     }
-
-
-    /**TODO:  need to test the storage manager and the datamanager with multiple clients--> test edge cases as much as possible
-     *             implement storage manager and dont forget to flush
-     *             implement the logger -> use the functions inside main?? think ab it
-     */
-
-
     return 0;
 }

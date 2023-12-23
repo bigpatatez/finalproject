@@ -53,7 +53,6 @@ void print_sensor_element_info(sensor_element_t *element);
 void checkAverage(sensor_element_t * element);
 
 void * element_copy(void * element) {
-    //TODO
     sensor_element_t * copy = malloc(sizeof (sensor_element_t ));
     assert(copy != NULL);
     copy->sensor_id = ((sensor_element_t *)element)->sensor_id;
@@ -68,13 +67,11 @@ void * element_copy(void * element) {
 }
 
 void element_free(void ** element) {
-    //TODO
     free(*element);
     *element = NULL;
 }
 
 int element_compare(void * x, void * y) {
-    //TODO
     return ((((sensor_element_t *)x)-> room_id <  ((sensor_element_t *)y)->room_id) ? -1 : (((sensor_element_t*)x)->room_id == ((sensor_element_t*)y)->room_id) ? 0 : 1);
 }
 
@@ -96,10 +93,6 @@ void* datamgr_init(void* args)
 
 void populate_sensor_list(dplist_t* list, FILE* fp_sensor_map)
 {
-    // first read the data from the file
-    // initialize the element for the node in the list
-    // then insert the node at the end of the list
-
     if(fp_sensor_map != NULL)
     {
         uint16_t room_id  = 0;
@@ -118,8 +111,6 @@ void populate_sensor_list(dplist_t* list, FILE* fp_sensor_map)
                 el->values[i] = 999;
             }
             dpl_insert_at_index(list,el,0,false);
-            //printf("room_id : %d\n",room_id);
-            //printf("sensor_id: %d\n",sensor_id);
         }
     }
 }
@@ -133,7 +124,6 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
 {
     data = dpl_create(element_copy,element_free,element_compare);
     populate_sensor_list(data,fp_sensor_map);
-    //printf("room_id inserted in list : %hd\n", ((sensor_element_t*)dpl_get_element_at_index(data,0))->room_id);
     uint16_t sensor_id;
     double temp;
     time_t timestamp;
@@ -144,22 +134,26 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
         sensor_id = sensorData->id;
         temp = sensorData->value;
         timestamp = sensorData->ts;
-        for(int i =0;i< dpl_size(data);i++)
+        int found = 0 ;
+        for(int i=0;i< dpl_size(data);i++)
         {
             sensor_element_t * element =(sensor_element_t *)dpl_get_element_at_index(data,i);
-            //printf("looking for the sensor_id\n");
             if(element->sensor_id == sensor_id)
             {
                 printf("from data manager: found the sensor\n");
-                //printf("old info:\n");
-                //fflush(stdout);
-                //print_sensor_element_info(element);
-                printf("new info:\n");
                 fflush(stdout);
                 // this function modifies the data inside the linked list and calculates the new running average
                 running_average_calculator(element,temp,timestamp);
                 print_sensor_element_info(element);
+                found = 1;
+                break;
             }
+        }
+        if(!found)
+        {
+            char string[1024];
+            snprintf(string,sizeof(string),"Received sensor data with invalid sensor node ID %d",sensor_id);
+            write_to_log_process(string);
         }
     }
     printf("no more data: datamanager\n");
@@ -179,14 +173,6 @@ void print_sensor_element_info(sensor_element_t *element)
     printf("running average:%f \t",element->running_avg);
     printf("last modified: %s",asctime(gmtime(&(element->last_modified))));
     printf("\n");
-
-    /**printf("last %d temperature values:\n",RUN_AVG_LENGTH);
-    for(int i = 0 ; i<RUN_AVG_LENGTH;i++)
-    {
-        printf("value %d: %f\t",i,element->values[i]);
-    }
-    printf("\n");
-    fflush(stdout);*/
 }
 
 /**
@@ -211,32 +197,34 @@ void running_average_calculator(sensor_element_t *element, double temp, time_t t
         {
             sum += element->values[i];
         }
-
     }
     element->values[0] = temp;
     sum += temp;
     element->last_modified = timestamp;
     if(zero_counter>0){element->running_avg = sum/(RUN_AVG_LENGTH-zero_counter);}
     else{element->running_avg = sum/RUN_AVG_LENGTH;}
-    //checkAverage(element);
+    checkAverage(element);
 }
+
 /**
  * checks the running average and displays an error message if its higher than SET_MAX_TEMP or lower than SET_MIN_TEMP
  * @param element
  */
 void checkAverage(sensor_element_t * element)
 {
-    // this function needs to pass a message to the logger --> so we need to pass the pipe to the thread when initializing
     if(element->running_avg >SET_MAX_TEMP)
     {
-        fprintf(stderr,"Room %d is too hot\n",element->room_id);
+        char string[1024];
+        snprintf(string,sizeof(string),"Sensor node %d reports it's too hot in room %d",element->sensor_id,element->room_id);
+        write_to_log_process(string);
     }
      if(element->running_avg < SET_MIN_TEMP)
     {
-        fprintf(stderr,"Room %d is too cold\n",element->room_id);
+        char string[1024];
+        snprintf(string,sizeof(string),"Sensor node %d reports it's too cold in room %d",element->sensor_id,element->room_id);
+        write_to_log_process(string);
     }
 }
-
 
 /**
  * This method should be called to clean up the datamgr, and to free all used memory.
@@ -246,6 +234,7 @@ void datamgr_free()
 {
     dpl_free(&data,true);
 }
+
 
 /**
  * Gets the room ID for a certain sensor ID

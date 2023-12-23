@@ -24,7 +24,6 @@ typedef struct sbuffer_node {
 struct sbuffer {
     sbuffer_node_t *head;       /**< a pointer to the first node in the buffer */
     sbuffer_node_t *tail;       /**< a pointer to the last node in the buffer */
-    //int index[2];               /**< an array to keep track of where the different readers are in the buffer*/
 };
 
 pthread_cond_t peek_cond;
@@ -39,8 +38,6 @@ int sbuffer_init(sbuffer_t **buffer) {
     if (*buffer == NULL) return SBUFFER_FAILURE;
     (*buffer)->head = NULL;
     (*buffer)->tail = NULL;
-    //(*buffer)->index[0] = 0;
-    //(*buffer)->index[1] = 0;
     pthread_cond_init(&buffer_filled,NULL);
     pthread_cond_init(&peek_cond,NULL);
     pthread_mutex_init(&buff,NULL);
@@ -64,16 +61,9 @@ int sbuffer_free(sbuffer_t **buffer) {
     return SBUFFER_SUCCESS;
 }
 
-/*void decrement_indexes(sbuffer_t* buffer)
-{
-    buffer->index[0] --;
-    buffer->index[1] --;
-}*/
-
 int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
 
     if (buffer == NULL) return SBUFFER_FAILURE;
-
     if(id ==0)
     {
         pthread_mutex_lock(&buff);
@@ -123,13 +113,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
         if (buffer->head == buffer->tail) // buffer has only one node
         {
             buffer->head = buffer->tail = NULL;
-            /*if (data->id == 0) {
-                free(dummy);
-                printf("end of transmission detected\n");
-                eof = 1;
-                pthread_mutex_unlock(&buff);
-                return SBUFFER_NO_DATA;
-            }*/
+
         } else  // buffer has many nodes empty
         {
             buffer->head = buffer->head->next;
@@ -169,8 +153,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
     *data = dummy->data;
     buffer->index[id] ++;
     dummy->readers ++;*//*
-
-
+    
     if (buffer->head == buffer->tail) // buffer has only one node
     {
         buffer->head = buffer->tail = NULL;
@@ -227,6 +210,7 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     pthread_mutex_unlock(&buff);
     return SBUFFER_SUCCESS;
 }
+
 sbuffer_node_t * get_node_at_index(sbuffer_t* buffer, int index)
 {
     if(buffer ==NULL){return NULL;}
@@ -244,7 +228,6 @@ sbuffer_node_t * get_node_at_index(sbuffer_t* buffer, int index)
         }
         else{return NULL;}
     }
-
     return dummy;
 }
 

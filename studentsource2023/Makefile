@@ -63,8 +63,8 @@ clean-all: clean
 run : sensor_gateway sensor_node
 	@echo "Add your own implementation here..."
 
-test_conn: main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.h sbuffer.c lib/tcpsock.c lib/dplist.c
-	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -DTIMEOUT=5  main.c connmgr.c connmgr.h datamgr.c datamgr.h lib/tcpsock.c lib/dplist.c sbuffer.h sbuffer.c -lpthread -o test.out
+test_conn: main.c connmgr.c connmgr.h datamgr.c datamgr.h sbuffer.h sbuffer.c  sensor_db.c sensor_db.h lib/tcpsock.c lib/dplist.c
+	gcc -g -Wall -std=c11 -Werror -DSET_MIN_TEMP=10 -DSET_MAX_TEMP=20 -DTIMEOUT=5  main.c connmgr.c connmgr.h datamgr.c datamgr.h sensor_db.h sensor_db.c lib/tcpsock.c lib/dplist.c sbuffer.h sbuffer.c -lpthread -o test.out
 
 
 run_test_server: test.out
@@ -76,7 +76,13 @@ run_client: sensor_node
 run_client2: sensor_node
 	./sensor_node 21 1 127.0.0.1 5678
 
+run_client4: sensor_node
+	./sensor_node 132 1 127.0.0.1 5678
+
 runclient3: sensor_node
+	./sensor_node 142 1 127.0.0.1 5678
+
+run_client5: sensor_node
 	./sensor_node 37 1 127.0.0.1 5678
 
 datamgr_test: sbuffer.c sbuffer.h datamgr.c datamgr.h datamgr_test.c lib/dplist.c
