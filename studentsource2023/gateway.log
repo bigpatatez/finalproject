@@ -1,46 +1,58 @@
-0 - Sat Dec 23 22:18:11 2023 - A new 'data.csv' file has been created
-1 - Sat Dec 23 22:18:14 2023 - Sensor node 15 has opened a new connection
-2 - Sat Dec 23 22:18:14 2023 - Data insertion from sensor 15 succeeded
-3 - Sat Dec 23 22:18:14 2023 - Sensor node 142 has opened a new connection
-4 - Sat Dec 23 22:18:14 2023 - Data insertion from sensor 142 succeeded
-5 - Sat Dec 23 22:18:14 2023 - Sensor node 21 has opened a new connection
-6 - Sat Dec 23 22:18:14 2023 - Data insertion from sensor 21 succeeded
-7 - Sat Dec 23 22:18:14 2023 - Sensor node 37 has opened a new connection
-8 - Sat Dec 23 22:18:14 2023 - Data insertion from sensor 37 succeeded
-9 - Sat Dec 23 22:18:14 2023 - Sensor node 132 has opened a new connection
-10 - Sat Dec 23 22:18:14 2023 - Data insertion from sensor 132 succeeded
-11 - Sat Dec 23 22:18:15 2023 - Data insertion from sensor 15 succeeded
-12 - Sat Dec 23 22:18:15 2023 - Sensor node 15 reports it's too hot in room 1
-13 - Sat Dec 23 22:18:16 2023 - Data insertion from sensor 15 succeeded
-14 - Sat Dec 23 22:18:16 2023 - Data insertion from sensor 37 succeeded
-15 - Sat Dec 23 22:18:16 2023 - Sensor node 37 reports it's too hot in room 3
-16 - Sat Dec 23 22:18:17 2023 - Data insertion from sensor 142 succeeded
-17 - Sat Dec 23 22:18:17 2023 - Sensor node 142 reports it's too hot in room 14
-18 - Sat Dec 23 22:18:17 2023 - Data insertion from sensor 15 succeeded
-19 - Sat Dec 23 22:18:17 2023 - Data insertion from sensor 21 succeeded
-20 - Sat Dec 23 22:18:17 2023 - Sensor node 21 reports it's too hot in room 2
-21 - Sat Dec 23 22:18:17 2023 - Data insertion from sensor 132 succeeded
-22 - Sat Dec 23 22:18:17 2023 - Sensor node 132 reports it's too hot in room 13
-23 - Sat Dec 23 22:18:18 2023 - Data insertion from sensor 15 succeeded
-24 - Sat Dec 23 22:18:18 2023 - Data insertion from sensor 37 succeeded
-25 - Sat Dec 23 22:18:19 2023 - Data insertion from sensor 15 succeeded
-26 - Sat Dec 23 22:18:20 2023 - Data insertion from sensor 142 succeeded
-27 - Sat Dec 23 22:18:20 2023 - Data insertion from sensor 37 succeeded
-28 - Sat Dec 23 22:18:20 2023 - Data insertion from sensor 15 succeeded
-29 - Sat Dec 23 22:18:20 2023 - Data insertion from sensor 21 succeeded
-30 - Sat Dec 23 22:18:20 2023 - Data insertion from sensor 132 succeeded
-31 - Sat Dec 23 22:18:21 2023 - Data insertion from sensor 15 succeeded
-32 - Sat Dec 23 22:18:22 2023 - Data insertion from sensor 37 succeeded
-33 - Sat Dec 23 22:18:22 2023 - Data insertion from sensor 15 succeeded
-34 - Sat Dec 23 22:18:23 2023 - Data insertion from sensor 142 succeeded
-35 - Sat Dec 23 22:18:23 2023 - Data insertion from sensor 21 succeeded
-36 - Sat Dec 23 22:18:23 2023 - Data insertion from sensor 15 succeeded
-37 - Sat Dec 23 22:18:23 2023 - Data insertion from sensor 132 succeeded
-38 - Sat Dec 23 22:18:24 2023 - Data insertion from sensor 37 succeeded
-39 - Sat Dec 23 22:18:24 2023 - Data insertion from sensor 15 succeeded
-40 - Sat Dec 23 22:18:25 2023 - Sensor node 37 has closed the connection
-41 - Sat Dec 23 22:18:25 2023 - Sensor node 15 has closed the connection
-42 - Sat Dec 23 22:18:25 2023 - Sensor node 132 has closed the connection
-43 - Sat Dec 23 22:18:25 2023 - Sensor node 142 has closed the connection
-44 - Sat Dec 23 22:18:25 2023 - Sensor node 21 has closed the connection
-45 - Sat Dec 23 22:18:25 2023 - The 'data.csv' file has been closed
+0 - Sun Dec 24 00:59:48 2023 - A new 'data.csv' file has been created
+1 - Sun Dec 24 00:59:51 2023 - Sensor node 15 has opened a new connection
+2 - Sun Dec 24 00:59:51 2023 - Sensor node 132 has opened a new connection
+3 - Sun Dec 24 00:59:51 2023 - Sensor node 15 reports it's too hot in room 1
+4 - Sun Dec 24 00:59:51 2023 - Data insertion from sensor 15 succeeded
+5 - Sun Dec 24 00:59:51 2023 - Data insertion from sensor 132 succeeded
+6 - Sun Dec 24 00:59:51 2023 - Sensor node 132 reports it's too hot in room 13
+7 - Sun Dec 24 00:59:51 2023 - Sensor node 142 has opened a new connection
+8 - Sun Dec 24 00:59:51 2023 - Sensor node 37 has opened a new connection
+9 - Sun Dec 24 00:59:51 2023 - Data insertion from sensor 142 succeeded
+10 - Sun Dec 24 00:59:51 2023 - Sensor node 142 reports it's too hot in room 14
+11 - Sun Dec 24 00:59:51 2023 - Data insertion from sensor 37 succeeded
+12 - Sun Dec 24 00:59:51 2023 - Sensor node 37 reports it's too hot in room 3
+13 - Sun Dec 24 00:59:51 2023 - Sensor node 21 has opened a new connection
+14 - Sun Dec 24 00:59:51 2023 - Data insertion from sensor 21 succeeded
+15 - Sun Dec 24 00:59:51 2023 - Sensor node 21 reports it's too hot in room 2
+16 - Sun Dec 24 00:59:52 2023 - Data insertion from sensor 15 succeeded
+17 - Sun Dec 24 00:59:53 2023 - Data insertion from sensor 37 succeeded
+18 - Sun Dec 24 00:59:53 2023 - Data insertion from sensor 15 succeeded
+19 - Sun Dec 24 00:59:53 2023 - Sensor node 15 reports it's too hot in room 1
+20 - Sun Dec 24 00:59:54 2023 - Data insertion from sensor 132 succeeded
+21 - Sun Dec 24 00:59:54 2023 - Data insertion from sensor 142 succeeded
+22 - Sun Dec 24 00:59:54 2023 - Data insertion from sensor 15 succeeded
+23 - Sun Dec 24 00:59:54 2023 - Data insertion from sensor 21 succeeded
+24 - Sun Dec 24 00:59:55 2023 - Data insertion from sensor 37 succeeded
+25 - Sun Dec 24 00:59:55 2023 - Sensor node 37 reports it's too hot in room 3
+26 - Sun Dec 24 00:59:55 2023 - Data insertion from sensor 15 succeeded
+27 - Sun Dec 24 00:59:55 2023 - Sensor node 15 reports it's too hot in room 1
+28 - Sun Dec 24 00:59:56 2023 - Data insertion from sensor 15 succeeded
+29 - Sun Dec 24 00:59:56 2023 - Sensor node 15 reports it's too hot in room 1
+30 - Sun Dec 24 00:59:57 2023 - Data insertion from sensor 132 succeeded
+31 - Sun Dec 24 00:59:57 2023 - Sensor node 132 reports it's too hot in room 13
+32 - Sun Dec 24 00:59:57 2023 - Data insertion from sensor 142 succeeded
+33 - Sun Dec 24 00:59:57 2023 - Sensor node 142 reports it's too hot in room 14
+34 - Sun Dec 24 00:59:57 2023 - Data insertion from sensor 37 succeeded
+35 - Sun Dec 24 00:59:57 2023 - Data insertion from sensor 21 succeeded
+36 - Sun Dec 24 00:59:57 2023 - Sensor node 21 reports it's too hot in room 2
+37 - Sun Dec 24 00:59:57 2023 - Data insertion from sensor 15 succeeded
+38 - Sun Dec 24 00:59:57 2023 - Sensor node 15 reports it's too hot in room 1
+39 - Sun Dec 24 00:59:58 2023 - Data insertion from sensor 15 succeeded
+40 - Sun Dec 24 00:59:59 2023 - Data insertion from sensor 15 succeeded
+41 - Sun Dec 24 00:59:59 2023 - Sensor node 15 reports it's too hot in room 1
+42 - Sun Dec 24 00:59:59 2023 - Data insertion from sensor 37 succeeded
+43 - Sun Dec 24 00:59:59 2023 - Sensor node 37 reports it's too hot in room 3
+44 - Sun Dec 24 01:00:00 2023 - Data insertion from sensor 132 succeeded
+45 - Sun Dec 24 01:00:00 2023 - Data insertion from sensor 142 succeeded
+46 - Sun Dec 24 01:00:00 2023 - Data insertion from sensor 21 succeeded
+47 - Sun Dec 24 01:00:00 2023 - Data insertion from sensor 15 succeeded
+48 - Sun Dec 24 01:00:00 2023 - Sensor node 15 reports it's too hot in room 1
+49 - Sun Dec 24 01:00:01 2023 - Data insertion from sensor 15 succeeded
+50 - Sun Dec 24 01:00:01 2023 - Data insertion from sensor 37 succeeded
+51 - Sun Dec 24 01:00:01 2023 - Sensor node 37 reports it's too hot in room 3
+52 - Sun Dec 24 01:00:02 2023 - Sensor node 37 has closed the connection
+53 - Sun Dec 24 01:00:02 2023 - Sensor node 15 has closed the connection
+54 - Sun Dec 24 01:00:02 2023 - Sensor node 142 has closed the connection
+55 - Sun Dec 24 01:00:02 2023 - Sensor node 21 has closed the connection
+56 - Sun Dec 24 01:00:02 2023 - Sensor node 132 has closed the connection
+57 - Sun Dec 24 01:00:02 2023 - The 'data.csv' file has been closed

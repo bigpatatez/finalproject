@@ -22,7 +22,8 @@ int seq = 0;
 pthread_mutex_t logging;
 int write_to_log_process(char *msg)
 {
-    char send[1024];
+    pthread_mutex_lock(&logging);
+    char send[500] = {0};
     char * timestamp;
 
     time_t ltime;
@@ -30,7 +31,6 @@ int write_to_log_process(char *msg)
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp)-1] = '\0';
 
-    pthread_mutex_lock(&logging);
     snprintf(send,sizeof(send),"%d - %s - %s\n",seq,timestamp,msg);
     printf("sending message\n");
     write(fd[1],send,sizeof(send));
@@ -42,10 +42,10 @@ int write_to_log_process(char *msg)
 }
 int logger()
 {
-    char received[1024];
+    char received[500] = {0};
     FILE* f = fopen("gateway.log","w");
     close(fd[1]);
-    while(read(fd[0],received,1024)>0)
+    while(read(fd[0],received,500)>0)
     {
         fprintf(f,"%s",received);
         fflush(f);

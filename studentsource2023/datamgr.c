@@ -151,7 +151,7 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
         }
         if(!found)
         {
-            char string[1024];
+            char string[500] = {0};
             snprintf(string,sizeof(string),"Received sensor data with invalid sensor node ID %d",sensor_id);
             write_to_log_process(string);
         }
@@ -214,13 +214,13 @@ void checkAverage(sensor_element_t * element)
 {
     if(element->running_avg >SET_MAX_TEMP)
     {
-        char string[1024];
+        char string[500] = {0};
         snprintf(string,sizeof(string),"Sensor node %d reports it's too hot in room %d",element->sensor_id,element->room_id);
         write_to_log_process(string);
     }
      if(element->running_avg < SET_MIN_TEMP)
     {
-        char string[1024];
+        char string[500] = {0};
         snprintf(string,sizeof(string),"Sensor node %d reports it's too cold in room %d",element->sensor_id,element->room_id);
         write_to_log_process(string);
     }

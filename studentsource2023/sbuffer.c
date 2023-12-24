@@ -153,7 +153,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
     *data = dummy->data;
     buffer->index[id] ++;
     dummy->readers ++;*//*
-    
+
     if (buffer->head == buffer->tail) // buffer has only one node
     {
         buffer->head = buffer->tail = NULL;

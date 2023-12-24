@@ -59,7 +59,7 @@ void * conmgr_routine(void * param)
 
         if(i == 0)
         {
-            char string[1024];
+            char string[500];
             snprintf(string,sizeof(string),"Sensor node %d has opened a new connection",data.id);
             write_to_log_process(string);
         }
@@ -84,7 +84,7 @@ void * conmgr_routine(void * param)
     {
         printf("Error occured on connection to peer\n");
         printf("Error code : %d\n",result);
-        char string[1024];
+        char string[500];
         snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
         write_to_log_process(string);
     }

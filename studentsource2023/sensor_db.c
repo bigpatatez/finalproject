@@ -24,7 +24,7 @@ void * storagemgr_init(void * args)
             else
             {
                 printf("Data inserted");
-                char string[1024];
+                char string[500];
                 snprintf(string,sizeof(string),"Data insertion from sensor %d succeeded",d->id);
                 write_to_log_process(string);
             }
