@@ -101,11 +101,13 @@ void * conmgr_routine(void * param)
     }
     else
     {
+        pthread_mutex_lock(&counter);
         printf("Error occured on connection to peer\n");
         printf("Error code : %d\n",result);
         char string[500];
         snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
         write_to_log_process(string);
+        pthread_mutex_unlock(&counter);
     }
 
     return NULL ;
