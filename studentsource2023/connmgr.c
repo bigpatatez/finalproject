@@ -59,35 +59,22 @@ void * conmgr_routine(void * param)
 
         if(i == 0)
         {
+            pthread_mutex_lock(&counter);
             char string[500];
             snprintf(string,sizeof(string),"Sensor node %d has opened a new connection",data.id);
             write_to_log_process(string);
+            i = 1;
+            pthread_mutex_unlock(&counter);
         }
+
         if ((result == TCP_NO_ERROR) && bytes && data.id != 0 && data.ts >= 0 && data.value >= 0) {
             printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
                    (long int) data.ts);
             sbuffer_insert(b,&data);
             setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
-
         }
-        i = 1;
-    } while (result == TCP_NO_ERROR  );
 
-    if (result == TCP_CONNECTION_CLOSED)
-    {
-        printf("Peer has closed connection\n");
-        char string[1024];
-        snprintf(string,sizeof(string),"Sensor node %d has closed the connection",data.id);
-        write_to_log_process(string);
-    }
-    else
-    {
-        printf("Error occured on connection to peer\n");
-        printf("Error code : %d\n",result);
-        char string[500];
-        snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
-        write_to_log_process(string);
-    }
+    } while (result == TCP_NO_ERROR  );
 
     tcp_close(&client);
 
@@ -98,11 +85,28 @@ void * conmgr_routine(void * param)
         pthread_cond_signal(&everyoneHere);
     }
     printf("signaled main\n");
-    fflush(stdout);
-    pthread_mutex_unlock(&counter);
-
     timeout.tv_sec = TIMEOUT;
     timeout.tv_usec = 0;
+    pthread_mutex_unlock(&counter);
+
+
+    if (result == TCP_CONNECTION_CLOSED)
+    {
+        pthread_mutex_lock(&counter);
+        printf("Peer has closed connection\n");
+        char string[500];
+        snprintf(string,sizeof(string),"Sensor node %d has closed the connection",data.id);
+        write_to_log_process(string);
+        pthread_mutex_unlock(&counter);
+    }
+    else
+    {
+        printf("Error occured on connection to peer\n");
+        printf("Error code : %d\n",result);
+        char string[500];
+        snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
+        write_to_log_process(string);
+    }
 
     return NULL ;
 }

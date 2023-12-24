@@ -32,7 +32,7 @@ int write_to_log_process(char *msg)
     timestamp[strlen(timestamp)-1] = '\0';
 
     snprintf(send,sizeof(send),"%d - %s - %s\n",seq,timestamp,msg);
-    printf("sending message\n");
+    //printf("sending message\n");
     write(fd[1],send,sizeof(send));
     printf("sent message\n");
     seq++;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
         {
             printf("storage manager not joined correctly\n");
         }
-        printf("connection manager and data manager joined\n");
+        printf("all threads joined\n");
         close(fd[1]);
         wait(NULL);
         sbuffer_free(&buffer);
