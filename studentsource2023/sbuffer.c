@@ -187,9 +187,10 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
 
 
 int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
-    sbuffer_node_t *dummy;
+
     if (buffer == NULL) return SBUFFER_FAILURE;
     pthread_mutex_lock(&buff);
+    sbuffer_node_t *dummy;
     dummy = malloc(sizeof(sbuffer_node_t));
     if (dummy == NULL) return SBUFFER_FAILURE;
     dummy->data = *data;
