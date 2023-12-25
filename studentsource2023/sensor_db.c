@@ -12,7 +12,7 @@ void * storagemgr_init(void * args)
     if(file != NULL)
     {
         write_to_log_process("A new 'data.csv' file has been created");
-        while(sbuffer_remove(b,d,1) != SBUFFER_NO_DATA)
+        while(sbuffer_peek(b,d) != SBUFFER_NO_DATA)
         {
             printf("storage got: %d, %f, %ld",d->id,d->value,d->ts);
             int success = fprintf(file,"%d, %f, %ld\n",d->id,d->value,d->ts);

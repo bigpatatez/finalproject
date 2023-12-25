@@ -37,15 +37,15 @@ void * conmgr_routine(void * param)
     tcpsock_t * client ;
     client = (tcpsock_t*)param;
 
-    int sd ;
-    tcp_get_sd(client,&sd);
+    //int sd ;
+    //tcp_get_sd(client,&sd);
 
     sensor_data_t data;
     int bytes, result;
     int i = 0;
-    struct timeval timeout;
-    timeout.tv_sec = TIMEOUT;
-    timeout.tv_usec = 0;
+    //struct timeval timeout;
+    //timeout.tv_sec = TIMEOUT;
+    //timeout.tv_usec = 0;
     do {
         // read sensor ID
         bytes = sizeof(data.id);
@@ -71,25 +71,10 @@ void * conmgr_routine(void * param)
             printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
                    (long int) data.ts);
             sbuffer_insert(b,&data);
-            setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
+            //setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
         }
 
     } while (result == TCP_NO_ERROR  );
-
-    tcp_close(&client);
-
-    pthread_mutex_lock(&counter);
-    client_conn_counter--;
-    if(client_conn_counter==0)
-    {
-        pthread_cond_signal(&everyoneHere);
-    }
-    printf("signaled main\n");
-    timeout.tv_sec = TIMEOUT;
-    timeout.tv_usec = 0;
-    pthread_mutex_unlock(&counter);
-
-
     if (result == TCP_CONNECTION_CLOSED)
     {
         pthread_mutex_lock(&counter);
@@ -104,11 +89,27 @@ void * conmgr_routine(void * param)
         pthread_mutex_lock(&counter);
         printf("Error occured on connection to peer\n");
         printf("Error code : %d\n",result);
+        fflush(stdout);
         char string[500];
         snprintf(string,sizeof(string),"An error occurred with connection to sensor node %d",data.id);
         write_to_log_process(string);
         pthread_mutex_unlock(&counter);
     }
+    tcp_close(&client);
+
+    pthread_mutex_lock(&counter);
+    client_conn_counter--;
+    if(client_conn_counter==0)
+    {
+        pthread_cond_signal(&everyoneHere);
+    }
+    printf("signaled main\n");
+    //timeout.tv_sec = TIMEOUT;
+    //timeout.tv_usec = 0;
+    pthread_mutex_unlock(&counter);
+
+
+
 
     return NULL ;
 }

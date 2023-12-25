@@ -47,6 +47,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id);
 */
 int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data);
 
-sbuffer_node_t * get_node_at_index(sbuffer_t* buffer, int index);
+int sbuffer_peek(sbuffer_t *buffer, sensor_data_t* data);
+int sbuffer_remove_and_peek(sbuffer_t* buffer, sensor_data_t* data);
 
 #endif  //_SBUFFER_H_

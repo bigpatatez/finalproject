@@ -15,7 +15,8 @@
 typedef struct sbuffer_node {
     struct sbuffer_node *next;  /**< a pointer to the next node*/
     sensor_data_t data;/**< a structure containing the data */
-    int readers;  /**< an int to keep track of the readers that read the node */
+    int r_data;
+    int r_storage;
 } sbuffer_node_t;
 
 /**
@@ -61,9 +62,115 @@ int sbuffer_free(sbuffer_t **buffer) {
     return SBUFFER_SUCCESS;
 }
 
+int sbuffer_peek(sbuffer_t *buffer, sensor_data_t* data)
+{
+    if (buffer == NULL) return SBUFFER_FAILURE;
+    pthread_mutex_lock(&buff);
+    while (buffer->head == NULL || buffer->head->r_data == 1) { // if the buffer is empty
+        pthread_cond_wait(&buffer_filled,&buff);
+    }
+    printf("got signal from insert\n");
+
+    *data = buffer->head->data;
+    buffer->head->r_data = 1;
+    if(data->id == 0)
+    {
+        eof = 1;
+        printf("end of transmission data\n");
+        pthread_cond_signal(&buffer_filled);
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
+    }
+    pthread_cond_signal(&buffer_filled);
+    pthread_mutex_unlock(&buff);
+    return SBUFFER_SUCCESS;
+/*if (buffer == NULL) return SBUFFER_FAILURE;
+    pthread_mutex_lock(&buff);
+    while(buffer->head ==NULL || buffer->head->r_data == 1)
+    {
+        pthread_cond_wait(&buffer_filled,&buff);
+        printf("got signal from insert or storage manager removed the node\n");
+    }
+    *data = buffer->head->data;
+    buffer->head->r_data = 1;
+    pthread_cond_signal(&buffer_filled);
+    if(data->id ==0)
+    {
+        eof = 1 ;
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
+    }
+    pthread_mutex_unlock(&buff);
+    return SBUFFER_SUCCESS;*/
+}
+
+int sbuffer_remove_and_peek(sbuffer_t* buffer, sensor_data_t* data)
+{
+    if(buffer == NULL) return SBUFFER_FAILURE;
+    pthread_mutex_lock(&buff);
+    if(eof == 1)
+    {
+        printf("storage end of file\n");
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
+    }
+    while(buffer->head == NULL ||buffer->head->r_data == 0)
+    {
+        pthread_cond_wait(&buffer_filled,&buff);
+    }
+    sbuffer_node_t *dummy;
+    dummy = buffer->head;
+    *data = buffer->head->data;
+    if(data->id ==0)
+    {
+        printf("end of transmission storage\n");
+        //pthread_cond_signal(&buffer_filled);
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
+    }
+    if (buffer->head == buffer->tail) // buffer has only one node
+    {
+        buffer->head = buffer->tail = NULL;
+
+    } else  // buffer has many nodes empty
+    {
+        buffer->head = buffer->head->next;
+    }
+    free(dummy);
+    pthread_cond_signal(&buffer_filled);
+    pthread_mutex_unlock(&buff);
+    return SBUFFER_SUCCESS;
+
+    /*pthread_mutex_lock(&buff);
+    while(buffer->head == NULL || buffer->head->r_data == 0)
+    {
+        pthread_cond_wait(&buffer_filled,&buff);
+        printf("data inserted in buffer or datamanager read the node\n");
+    }
+    *data = buffer->head->data;
+    sbuffer_node_t *dummy;
+    dummy = buffer->head;
+    if (buffer->head == buffer->tail) // buffer has only one node
+    {
+        buffer->head = buffer->tail = NULL;
+
+    } else  // buffer has many nodes empty
+    {
+        buffer->head = buffer->head->next;
+    }
+    free(dummy);
+    if(eof == 1)
+    {
+        pthread_mutex_unlock(&buff);
+        return SBUFFER_NO_DATA;
+    }
+    printf("storage manager: freed the node\n");
+    return SBUFFER_SUCCESS;*/
+}
+
 int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
 
-    if (buffer == NULL) return SBUFFER_FAILURE;
+   /* if (buffer == NULL) return SBUFFER_FAILURE;
     if(id ==0)
     {
         pthread_mutex_lock(&buff);
@@ -106,6 +213,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
             pthread_mutex_unlock(&buff);
             return SBUFFER_NO_DATA;
         }
+
         sbuffer_node_t *dummy;
         dummy = buffer->head;
         *data = buffer->head->data;
@@ -123,79 +231,22 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data, int id) {
         pthread_cond_signal(&peek_cond);
         pthread_mutex_unlock(&buff);
         return SBUFFER_SUCCESS;
-    }
-    /*//pthread_mutex_lock(&buff);
-    // get the element based on the index
-    //sbuffer_node_t * dummy = get_node_at_index(buffer,buffer->index[id]);
-    *//*while (buffer->head == NULL) { // if the buffer is empty
-        if(eof == 1)
-        {
-            pthread_mutex_unlock(&buff);
-            return SBUFFER_NO_DATA;
-        }
-        pthread_cond_wait(&buffer_filled,&buff);
-        printf("got signal from insert\n");
-    }*//*
-    *//*while(dummy == NULL)
-    {
-        pthread_cond_wait(&buffer_filled,&buff);
-        printf("got signal from insert\n");
-        //sleep(5);
-        //dummy = get_node_at_index(buffer,buffer->index[id]);
-
-    }*//*
-
-    sbuffer_node_t *dummy;
-    dummy = buffer->head;
-    *data = buffer->head->data;
-    //pthread_mutex_lock(&buff);
-    *//*dummy = buffer->tail;
-    *data = dummy->data;
-    buffer->index[id] ++;
-    dummy->readers ++;*//*
-
-    if (buffer->head == buffer->tail) // buffer has only one node
-    {
-        buffer->head = buffer->tail = NULL;
-        if (data->id == 0) {
-            free(dummy);
-            printf("end of transmission detected\n");
-            eof = 1;
-            pthread_mutex_unlock(&buff);
-            return SBUFFER_NO_DATA;
-        }
-    } else  // buffer has many nodes empty
-    {
-        buffer->head = buffer->head->next;
-    }
-
-    free(dummy);
-    pthread_mutex_unlock(&buff);
-    return SBUFFER_SUCCESS;
-
-    if(data->id == 0)
-    {
-        printf("end of transmission detected by the first reader\n");
-        free(dummy);
-        pthread_mutex_unlock(&buff);
-        return SBUFFER_NO_DATA;
-    }
-
-    pthread_mutex_unlock(&buff);
-    return SBUFFER_SUCCESS;*/
+    }*/
+  return SBUFFER_SUCCESS;
 }
 
 
 int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
 
     if (buffer == NULL) return SBUFFER_FAILURE;
-    pthread_mutex_lock(&buff);
+    pthread_mutex_lock(&insert);
     sbuffer_node_t *dummy;
     dummy = malloc(sizeof(sbuffer_node_t));
     if (dummy == NULL) return SBUFFER_FAILURE;
     dummy->data = *data;
     dummy->next = NULL;
-
+    dummy->r_data = 0;
+    dummy->r_storage =0;
     if (buffer->tail == NULL) // buffer empty (buffer->head should also be NULL
     {
         buffer->head = buffer->tail = dummy;
@@ -206,9 +257,9 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
         buffer->tail = buffer->tail->next;
     }
     printf("buffer is filled with something: signaling remove\n");
-    pthread_cond_signal(&buffer_filled);
 
-    pthread_mutex_unlock(&buff);
+    pthread_mutex_unlock(&insert);
+    pthread_cond_broadcast(&buffer_filled);
     return SBUFFER_SUCCESS;
 }
 
