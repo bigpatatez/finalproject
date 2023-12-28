@@ -33,7 +33,6 @@ int sbuffer_free(sbuffer_t **buffer);
  * returns SBUFFER_NO_DATA when the end of the transmission is detected
  * \param buffer a pointer to the buffer that is used
  * \param data a pointer to pre-allocated sensor_data_t space, the data will be copied into this structure. No new memory is allocated for 'data' in this function.
- * \param id flag that matches the reader with its position on the buffer, it will get decremented when a node is read by both readers and is thus removed
  * \return SBUFFER_SUCCESS on success and SBUFFER_FAILURE if an error occurred
  */
 int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data);
@@ -51,7 +50,7 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data);
  * has a blocking wait if there is no data available or if the data has already been read
  * \param data a pointer to pre-allocated sensor_data_t space, the data will be copied into this structure. No new memory is allocated for 'data' in this function.
  * \param buffer a pointer to the buffer that is used
- * \return SBUFFER_SUCCESS when succesfully reads and SBUFFER_NO_DATA when the dummy node is detected
+ * \return SBUFFER_SUCCESS when succesfully reads and SBUFFER_NO_DATA when end of transmission is detected
  * */
 int sbuffer_peek(sbuffer_t *buffer, sensor_data_t* data);
 
