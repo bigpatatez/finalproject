@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
     if(pid == 0)
     {
         logger();
-
     }
     else{
 
@@ -101,7 +100,7 @@ int main(int argc, char *argv[])
         printf("data manager\n");
         pthread_create(&storagemgr,NULL,&storagemgr_init,(void*)buffer);
 
-        // can implement an array and check whether all threads joined correctly
+
         int result = pthread_join(connmgr,NULL);
         if(result !=0)
         {

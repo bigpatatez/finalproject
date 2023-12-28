@@ -10,8 +10,6 @@
 #include <pthread.h>
 #include "connmgr.h"
 #include "sbuffer.h"
-#include <bits/types/struct_timeval.h>
-#include <sys/socket.h>
 
 #ifndef TIMEOUT
 #define TIMEOUT 5
@@ -27,7 +25,7 @@ typedef struct
 int server_conn_counter = 0 ;
 pthread_mutex_t counter;
 
-pthread_cond_t everyoneHere;
+
 int client_conn_counter = 0 ;
 int MAX_CONN;
 sbuffer_t* b;
@@ -37,15 +35,9 @@ void * conmgr_routine(void * param)
     tcpsock_t * client ;
     client = (tcpsock_t*)param;
 
-    //int sd ;
-    //tcp_get_sd(client,&sd);
-
     sensor_data_t data;
     int bytes, result;
     int i = 0;
-    //struct timeval timeout;
-    //timeout.tv_sec = TIMEOUT;
-    //timeout.tv_usec = 0;
     do {
         // read sensor ID
         bytes = sizeof(data.id);
@@ -66,15 +58,13 @@ void * conmgr_routine(void * param)
             i = 1;
             pthread_mutex_unlock(&counter);
         }
-
-        if ((result == TCP_NO_ERROR) && bytes && data.id != 0 && data.ts >= 0 && data.value >= 0) {
+        if ((result == TCP_NO_ERROR) && bytes) {
             printf("Got from client:\n sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
                    (long int) data.ts);
             sbuffer_insert(b,&data);
-            //setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof timeout);
         }
-
     } while (result == TCP_NO_ERROR  );
+
     if (result == TCP_CONNECTION_CLOSED)
     {
         pthread_mutex_lock(&counter);
@@ -95,23 +85,10 @@ void * conmgr_routine(void * param)
         write_to_log_process(string);
         pthread_mutex_unlock(&counter);
     }
+
     tcp_close(&client);
 
-    pthread_mutex_lock(&counter);
-    client_conn_counter--;
-    if(client_conn_counter==0)
-    {
-        pthread_cond_signal(&everyoneHere);
-    }
-    printf("signaled main\n");
-    //timeout.tv_sec = TIMEOUT;
-    //timeout.tv_usec = 0;
-    pthread_mutex_unlock(&counter);
-
-
-
-
-    return NULL ;
+    return CONMGR_SUCCESS;
 }
 
 
@@ -130,7 +107,7 @@ void * conmgr_init(void* arguments){
 
     pthread_t threadClient[MAX_CONN];
     pthread_mutex_init(&counter,NULL);
-    pthread_cond_init(&everyoneHere,NULL);
+
 
     printf("Test server is started\n");
     if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR)exit(EXIT_FAILURE);
@@ -146,14 +123,6 @@ void * conmgr_init(void* arguments){
     } while (server_conn_counter < MAX_CONN);
 
 
-    pthread_mutex_lock(&counter);
-    pthread_cond_wait(&everyoneHere,&counter);
-    //insert dummy data
-    sensor_data_t data ;
-    data.id = 0;
-    sbuffer_insert(b,&data);
-    pthread_mutex_unlock(&counter);
-
     for (int i = 0; i < MAX_CONN; ++i) {
         int join_result = pthread_join(threadClient[i], NULL);
         if (join_result != 0) {
@@ -163,6 +132,10 @@ void * conmgr_init(void* arguments){
         fflush(stdout);
     }
 
+    sensor_data_t data ;
+    data.id = 0;
+    sbuffer_insert(b,&data);
+
     if (tcp_close(&server) != TCP_NO_ERROR)
     {
         printf("error while closing tcp connection\n");
@@ -171,9 +144,8 @@ void * conmgr_init(void* arguments){
 
     printf("Test server is shutting down\n");
     pthread_mutex_destroy(&counter);
-    pthread_cond_destroy(&everyoneHere);
 
-    return 0;
+    return CONMGR_SUCCESS;
 }
 
 

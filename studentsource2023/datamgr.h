@@ -30,6 +30,7 @@
 
 
 typedef struct sensor_node sensor_node_t;
+
 /*
  * Use ERROR_HANDLER() for handling memory allocation problems, invalid sensor IDs, non-existing files, etc.
  */
@@ -39,14 +40,20 @@ typedef struct sensor_node sensor_node_t;
                         exit(EXIT_FAILURE);                         \
                       }                                             \
                     } while(0)
-
+/**
+ * Thread routine for Data Manager
+ * Initializes the datamanager by opening the room_sensor.map file and calling the datamgr_parse_sensor_files
+ * closes the mapping file and calls datamgr_free() at the end of the program
+ * @param args a pointer to the shared buffer
+ * @return NULL
+ */
 void* datamgr_init(void* args);
 
 /**
- *  This method holds the core functionality of your datamgr. It takes in 2 file pointers to the sensor files and parses them. 
- *  When the method finishes all data should be in the internal pointer list and all log messages should be printed to stderr.
+ *  This method holds the core functionality of your datamgr. It takes in 1 file pointer to the sensor-room mapping and a reference to the shared buffer
+ *  When the method finishes all data should be in the internal pointer list and all log messages should be sent to the logger
  *  \param fp_sensor_map file pointer to the map file
- *  \param fp_sensor_data file pointer to the binary data file
+ *  \param buffer pointer to the shared data structure
  */
 void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t* buffer);
 
@@ -55,6 +62,7 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t* buffer);
  * After this, any call to datamgr_get_room_id, datamgr_get_avg, datamgr_get_last_modified or datamgr_get_total_sensors will not return a valid result
  */
 void datamgr_free();
+
 
 /**
  * Gets the room ID for a certain sensor ID

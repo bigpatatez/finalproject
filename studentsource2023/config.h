@@ -20,6 +20,12 @@ typedef struct {
     sensor_ts_t ts;
 } sensor_data_t;
 
+/**
+ * Sends a log message to the log process through the pipe set up in the main function
+ * Appends a sequence number and a timestamp to the message to be sent
+ * @param msg the message to be sent to the logger
+ * @return 1
+ */
 int write_to_log_process(char *msg);
 
 

@@ -71,7 +71,7 @@ run_test_server: test.out
 	./test.out 5678 1
 
 run_client: sensor_node
-	./sensor_node 15 1 127.0.0.1 5678
+	./sensor_node 1 1 127.0.0.1 5678
 
 run_client2: sensor_node
 	./sensor_node 21 1 127.0.0.1 5678

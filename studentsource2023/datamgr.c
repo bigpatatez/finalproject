@@ -34,8 +34,6 @@
                       }                                             \
                     } while(0)
 
-
-
 typedef struct {
     uint16_t sensor_id;
     uint16_t room_id;
@@ -52,6 +50,8 @@ void print_sensor_element_info(sensor_element_t *element);
 
 void checkAverage(sensor_element_t * element);
 
+
+// dplist functions
 void * element_copy(void * element) {
     sensor_element_t * copy = malloc(sizeof (sensor_element_t ));
     assert(copy != NULL);
@@ -74,6 +74,7 @@ void element_free(void ** element) {
 int element_compare(void * x, void * y) {
     return ((((sensor_element_t *)x)-> room_id <  ((sensor_element_t *)y)->room_id) ? -1 : (((sensor_element_t*)x)->room_id == ((sensor_element_t*)y)->room_id) ? 0 : 1);
 }
+
 
 
 void* datamgr_init(void* args)
@@ -115,10 +116,10 @@ void populate_sensor_list(dplist_t* list, FILE* fp_sensor_map)
     }
 }
 /**
- *  This method holds the core functionality of your datamgr. It takes in 2 file pointers to the sensor files and parses them.
- *  When the method finishes all data should be in the internal pointer list and all log messages should be printed to stderr.
+ *  This method holds the core functionality of your datamgr. It takes in 1 file pointer to the sensor-room mapping and a reference to the shared buffer
+ *  When the method finishes all data should be in the internal pointer list and all log messages should be sent to the logger
  *  \param fp_sensor_map file pointer to the map file
- *  \param fp_sensor_data file pointer to the binary data file
+ *  \param buffer pointer to the shared data structure
  */
 void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
 {
@@ -159,8 +160,6 @@ void datamgr_parse_sensor_files(FILE *fp_sensor_map, sbuffer_t * buffer)
     printf("no more data: datamanager\n");
     free(sensorData);
 }
-
-
 /**
  * Function printing the information contained in a sensor node
  * @param element
@@ -181,7 +180,6 @@ void print_sensor_element_info(sensor_element_t *element)
  * @param temp new temperature data
  * @param timestamp timestamp linked to the new temperature data
  */
-
 void running_average_calculator(sensor_element_t *element, double temp, time_t timestamp)
 {
     double sum = 0;
@@ -234,7 +232,6 @@ void datamgr_free()
 {
     dpl_free(&data,true);
 }
-
 
 /**
  * Gets the room ID for a certain sensor ID

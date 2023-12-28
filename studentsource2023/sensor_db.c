@@ -2,6 +2,7 @@
 #include "config.h"
 #include <stdlib.h>
 #include "sbuffer.h"
+#include "sensor_db.h"
 
 
 void * storagemgr_init(void * args)
@@ -20,6 +21,9 @@ void * storagemgr_init(void * args)
             if(success <0)
             {
                 printf("Data insertion failed");
+                char string[500];
+                snprintf(string,sizeof(string),"Data insertion from sensor %d failed",d->id);
+                write_to_log_process(string);
             }
             else
             {
@@ -32,6 +36,6 @@ void * storagemgr_init(void * args)
     }
     if(fclose(file)== 0) write_to_log_process("The 'data.csv' file has been closed");
     free(d);
-    return NULL;
+    return STORAGE_MANAGER_SUCCESS;
 }
 
